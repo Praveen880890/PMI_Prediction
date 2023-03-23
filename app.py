@@ -15,15 +15,17 @@ def main():
 
     def split(df):
         y = df.Pmi
-        x = df.drop(columns=['Pmi'])
+        x = df.drop(columns=['Pmi',"name"])
         return x,y
-    def add(LDH,AST,trig,ph_level,pmi_v):
+    def add(LDH,AST,trig,ph_level,pmi_v,name=None):
         data = {
+            'name': [name],
             'ldh': [LDH],
             'ast': [AST],
             'triglycerides': [trig],
             'ph_level': [ph_level],
             'pmi': [pmi_v]
+
         }
         df = pd.DataFrame(data)
         df.to_csv('pmi_new.csv', mode='a', index=False, header=False)
@@ -36,6 +38,7 @@ def main():
     AST=st.sidebar.number_input("AST is",step=10)
     trig=st.sidebar.number_input("Triglycerides is",step=5)
     ph_level=st.sidebar.number_input("Ph Level is",step=1)
+    name=st.sidebar.text_input("Name of the patient is")
     if "btn_clk" not in st.session_state:
         st.session_state.btn_clk=False
     def callback():
@@ -49,9 +52,15 @@ def main():
         y_pred=model.predict(x_test)
         st.write("The PMI estimated is",(int(y_pred[0])))
         st.write("Wanna add the results to prediction data?")
+        #t="name"+","+"ldh"+","+"ast"+","+"trig"+","+str(ph_level)+","+str(int(y_pred[0]))
+        s="name= "+str(name)+","+"ldh= "+str(LDH)+","+"ast= "+str(AST)+","+"triglycerides= "+str(trig)+","+"ph_level= "+str(ph_level)+","+"pmi_predicted= "+str(int(y_pred[0]))
+        st.write(s)
         if st.button("ADD",key="add"):
             st.subheader("Adding the data")
-            add(LDH,AST,trig,ph_level,int(y_pred[0]))
+            if name:
+                add(LDH,AST,trig,ph_level,int(y_pred[0]),name=name)
+            else:
+                add(LDH, AST, trig, ph_level, int(y_pred[0]),name=name)
             f=load_data()
 
 
